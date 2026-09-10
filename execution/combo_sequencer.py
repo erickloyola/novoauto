@@ -48,7 +48,7 @@ class ComboSequencer:
                 return False
             self.device.dash_medium()
             if is_close_range:
-                sleep_jitter(110.0, 10.0)
+                sleep_jitter(85.0, 0.0)
             else:
                 sleep_jitter(TIMINGS.dash_in_recovery_ms, TIMINGS.dash_in_recovery_jitter_ms)
 
@@ -77,24 +77,24 @@ class ComboSequencer:
 
             # Conclusões com Striker ou Especial
             if extend_with_striker:
-                time.sleep(0.045)
+                time.sleep(0.02)
                 logger.info("[Combo] Acionando STRIKER para extensão de combo!")
                 self.device.trigger_striker()
-                time.sleep(0.30)
+                time.sleep(0.20)
                 if cancel_into_sp:
                     logger.info("[Combo] Cancelando recuperação pós-striker em ATAQUE ESPECIAL!")
                     self.device.trigger_special()
-                    time.sleep(0.25)
+                    time.sleep(0.18)
                 else:
                     self.device.dash_back()
             elif cancel_into_sp:
-                time.sleep(0.045)  # Janela de cancelamento do 5º hit
+                time.sleep(0.02)  # Janela de cancelamento rápida do 5º hit
                 logger.info("[Combo] Cancelando recuperação em ATAQUE ESPECIAL!")
                 self.device.trigger_special()
-                time.sleep(0.25)
+                time.sleep(0.18)
             else:
-                # Recuo defensivo padrão pós-combo para reset seguro de neutro
-                time.sleep(0.16)
+                # Recuo defensivo ágil pós-combo
+                time.sleep(0.08)
                 self.device.dash_back()
 
             logger.info("[Combo] Sequência 5x concluída com sucesso.")

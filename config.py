@@ -110,27 +110,30 @@ INVERTED_ACTION_KEYS: Dict[InputScheme, Dict[GameAction, int]] = {
 # ==============================================================================
 # 3. Parâmetros de Tempo e Jitter Biológico
 # ==============================================================================
+# Flag global de jitter biológico (True = humanizado com variações estocásticas, False = modo teste de resposta instantânea)
+ENABLE_BIOLOGICAL_JITTER: bool = False
+
 @dataclass
 class TimingsConfig:
-    reaction_base_ms: float = 22.0
-    reaction_jitter_ms: float = 5.0
-    light_tap_ms: float = 55.0
-    light_tap_jitter_ms: float = 8.0
-    medium_dash_ms: float = 80.0
-    medium_dash_jitter_ms: float = 10.0
-    heavy_hold_ms: float = 480.0
-    heavy_hold_jitter_ms: float = 25.0
-    parry_pulse_ms: float = 120.0
-    parry_pulse_jitter_ms: float = 15.0
-    dexterity_dash_ms: float = 75.0
-    dexterity_dash_jitter_ms: float = 12.0
-    dash_in_recovery_ms: float = 210.0
-    dash_in_recovery_jitter_ms: float = 12.0
-    combo_hit_interval_ms: float = 135.0
-    combo_hit_interval_jitter_ms: float = 8.0
-    bait_spacing_interval_ms: float = 200.0
-    bait_spacing_jitter_ms: float = 25.0
-    heavy_recovery_punish_delay_ms: float = 160.0
+    reaction_base_ms: float = 0.0
+    reaction_jitter_ms: float = 0.0
+    light_tap_ms: float = 30.0
+    light_tap_jitter_ms: float = 0.0
+    medium_dash_ms: float = 50.0
+    medium_dash_jitter_ms: float = 0.0
+    heavy_hold_ms: float = 420.0
+    heavy_hold_jitter_ms: float = 0.0
+    parry_pulse_ms: float = 85.0
+    parry_pulse_jitter_ms: float = 0.0
+    dexterity_dash_ms: float = 45.0
+    dexterity_dash_jitter_ms: float = 0.0
+    dash_in_recovery_ms: float = 130.0
+    dash_in_recovery_jitter_ms: float = 0.0
+    combo_hit_interval_ms: float = 110.0
+    combo_hit_interval_jitter_ms: float = 0.0
+    bait_spacing_interval_ms: float = 120.0
+    bait_spacing_jitter_ms: float = 0.0
+    heavy_recovery_punish_delay_ms: float = 80.0
 
     @classmethod
     def load_from_file(cls, path: Path) -> "TimingsConfig":
@@ -149,13 +152,13 @@ TIMINGS = TimingsConfig.load_from_file(BASE_DIR / "timings.json")
 # 4. Parâmetros de Física e Combate
 # ==============================================================================
 CONTACT_DISTANCE_METERS = 0.95
-PARRY_WINDOW_MIN_MS = 90.0
-PARRY_WINDOW_MAX_MS = 135.0
+PARRY_WINDOW_MIN_MS = 80.0
+PARRY_WINDOW_MAX_MS = 140.0
 EMA_ALPHA = 0.75
 
-SPECIAL_DEFENSE_HOLD_SEC = 1.20
-EMERGENCY_GUARD_HOLD_SEC = 0.42
-POST_COMBO_COOLDOWN_SEC = 0.70
+SPECIAL_DEFENSE_HOLD_SEC = 1.00
+EMERGENCY_GUARD_HOLD_SEC = 0.25
+POST_COMBO_COOLDOWN_SEC = 0.20
 DAMAGE_THRESHOLD_HP_PCT = 1.8
 SP3_DANGER_THRESHOLD = 2.80
 

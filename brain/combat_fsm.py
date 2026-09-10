@@ -12,6 +12,7 @@ from typing import Optional
 from transitions import Machine
 
 from config import (
+    TIMINGS,
     SPECIAL_DEFENSE_HOLD_SEC,
     EMERGENCY_GUARD_HOLD_SEC,
     POST_COMBO_COOLDOWN_SEC,
@@ -148,8 +149,8 @@ class CombatBrain:
             # Reage apenas se o oponente acordar disparando Especial ou Dash
             if packet.opp_state_id == 9 or (self.prev_opp_mana >= 1.0 and (self.prev_opp_mana - packet.opponent.mana) >= 0.8):
                 self._handle_special_trigger()
-            elif physics.action == PhysicalAction.DASH_FORWARD:
-                self.device.parry_pulse()
+            elif physics.action == PhysicalAction.DASH_FORWARD or packet.opp_state_id == 2:
+                self.device.parry_pulse(TIMINGS.parry_pulse_ms)
             self.prev_opp_mana = packet.opponent.mana
             return
 
@@ -201,13 +202,17 @@ class CombatBrain:
                 return
 
         # ----------------------------------------------------------------------
-        # Regra 1: Oponente Avançando em Dash Forward -> Aparar Preditivo (Parry)
+        # Regra 1: Oponente Avançando em Dash Forward ou Atacando -> Aparar Preditivo (Parry)
         # ----------------------------------------------------------------------
-        if physics.action == PhysicalAction.DASH_FORWARD:
-            if (90.0 <= physics.t_impact_ms <= 135.0) or packet.opp_state_id == 2:
-                if self.state in ["NEUTRO", "BAITING_SP"]:
-                    self.trigger_parry()
-                    return
+        is_dash_approaching = (
+            (physics.action == PhysicalAction.DASH_FORWARD and 80.0 <= physics.t_impact_ms <= 140.0) or
+            (packet.opp_state_id == 2 and physics.dx <= 2.8) or
+            (packet.opp_state_id == 4 and physics.dx <= 1.8)
+        )
+        if is_dash_approaching:
+            if self.state in ["NEUTRO", "BAITING_SP"]:
+                self.trigger_parry()
+                return
 
         # ----------------------------------------------------------------------
         # Regra 3: Oponente Bloqueando -> Ataque Pesado (Quebra-Guarda)
@@ -236,7 +241,7 @@ class CombatBrain:
                     self.trigger_punish()
                     return
             elif physics.zone == CombatRangeZone.FAR_RESET:
-                if self.state == "NEUTRO" and (now - self.last_combo_end_time > 0.40):
+                if self.state == "NEUTRO" and (now - self.last_combo_end_time > 0.15):
                     logger.info("[CombatBrain] Oponente recuado em FAR_RESET! Avançando para reconectar distância de combate...")
                     self.device.dash_medium()
                     self.last_combo_end_time = now
@@ -246,11 +251,11 @@ class CombatBrain:
     # Callbacks de Transição de Estado
     # --------------------------------------------------------------------------
     def on_enter_parry(self) -> None:
-        logger.info("[CombatBrain] Executando APARAR PREDITIVO (Parry 120ms)...")
-        self.device.parry_pulse(120.0)
+        logger.info(f"[CombatBrain] Executando APARAR PREDITIVO (Parry {TIMINGS.parry_pulse_ms:.0f}ms)...")
+        self.device.parry_pulse(TIMINGS.parry_pulse_ms)
 
     def on_enter_special_defense(self) -> None:
-        logger.info("[CombatBrain] Especial detectado! Executando DESTREZA e Bloqueio Sustentado por 1.2s...")
+        logger.info("[CombatBrain] Especial detectado! Executando DESTREZA e Bloqueio Sustentado por 1.0s...")
         self.device.double_dash_back()
         self.device.engage_block()
         self.is_holding_guard = True
@@ -259,16 +264,16 @@ class CombatBrain:
     def on_enter_heavy_evade(self) -> None:
         logger.info("[CombatBrain] Oponente armando Pesado! Executando ESQUIVA DUPLA...")
         self.device.double_dash_back()
-        time.sleep(0.18)
+        time.sleep(0.08)
         self.trigger_punish()
 
     def on_enter_guard_break(self) -> None:
         logger.info("[CombatBrain] Oponente bloqueando! Executando QUEBRA-GUARDA...")
         if self.current_physics and self.current_physics.dx > 1.6:
             self.device.dash_medium()
-            time.sleep(0.04)
+            time.sleep(0.02)
         self.device.hold_heavy()
-        time.sleep(0.10)
+        time.sleep(0.04)
         self.device.dash_back()
         self.last_combo_end_time = time.perf_counter()
         self.return_neutral()
@@ -276,7 +281,7 @@ class CombatBrain:
     def on_enter_baiting(self) -> None:
         logger.info("[CombatBrain] Risco iminente de SP3! Iniciando BAITING...")
         self.device.engage_block()
-        time.sleep(0.08)
+        time.sleep(0.03)
         self.device.release_block()
         self.device.dash_back()
 

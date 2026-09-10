@@ -136,7 +136,7 @@ class VirtualDevice:
     def double_dash_back(self) -> None:
         """Executa Recuo Duplo rápido (Evasão de Ataque Pesado ou Especial)."""
         self.dash_back()
-        sleep_jitter(60.0, 10.0)
+        sleep_jitter(35.0, 0.0)
         self.dash_back()
 
     def hold_heavy(self, duration_ms: float = TIMINGS.heavy_hold_ms) -> None:
@@ -167,14 +167,14 @@ class VirtualDevice:
         """Dispara Ataque Especial (SP1 / SP2 / SP3)."""
         key = self._get_key(GameAction.SPECIAL_ATTACK)
         self.press_key(key)
-        sleep_jitter(65.0, 8.0)
+        sleep_jitter(45.0, 0.0)
         self.release_key(key)
 
     def trigger_striker(self) -> None:
         """Aciona a Relíquia / Striker para estender combo."""
         key = self._get_key(GameAction.STRIKER_ASSIST)
         self.press_key(key)
-        sleep_jitter(60.0, 8.0)
+        sleep_jitter(45.0, 0.0)
         self.release_key(key)
 
     # --------------------------------------------------------------------------
