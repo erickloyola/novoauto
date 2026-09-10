@@ -23,7 +23,7 @@ O **NovoAuto** é a evolução arquitetural definitiva do AutoJG. Ele elimina **
 
 ---
 
-## 2. 🔬 O Hook de Física em Tempo Real (`UpdateMovement`)
+## 2.  O Hook de Física em Tempo Real (`UpdateMovement`)
 
 No mod injetado no jogo (`version.dll` compilado via MSVC/Wine), o hook é posicionado no método interno do motor Unity:
 ```cpp
