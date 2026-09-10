@@ -1,4 +1,4 @@
-# ⚡ NovoAuto - Arquitetura de Automação Baseada no Hook de Física e Memória RAM
+#  NovoAuto - Arquitetura de Automação Baseada no Hook de Física e Memória RAM
 
 > **Projeto:** NovoAuto (Next-Gen MCoC Bot)  
 > **Paradigma:** *Zero-Vision Architecture* (100% Baseado em Leitura Direta de Memória e Cinemática de Física em Tempo Real)  
@@ -6,7 +6,7 @@
 
 ---
 
-## 1. 🎯 Visão Geral e Manifesto do Projeto
+## 1.  Visão Geral e Manifesto do Projeto
 
 O **NovoAuto** é a evolução arquitetural definitiva do AutoJG. Ele elimina **100% da camada de visão computacional** (OpenCV, OCR, segmentação HSV, fluxo óptico, captura de tela via `grim`/`mss`), substituindo-a inteiramente pela ingestão determinística e em tempo real dos dados extraídos diretamente do **Hook de Física e Animação do motor Unity/Il2Cpp** (`UltimatePlayerController_UpdateMovement`).
 
@@ -65,11 +65,11 @@ O hook empacota e envia um datagrama JSON compacto a cada ciclo:
 }
 ```
 
-> 📖 **Documentação Aprofundada:** Para a especificação exaustiva de cada campo, mapeamento de todos os `state_id`, payloads de exemplo em combate real e código de referência do receptor assíncrono em Python, consulte [DATAGRAMA_UDP.md](./DATAGRAMA_UDP.md).
+>  **Documentação Aprofundada:** Para a especificação exaustiva de cada campo, mapeamento de todos os `state_id`, payloads de exemplo em combate real e código de referência do receptor assíncrono em Python, consulte [DATAGRAMA_UDP.md](./DATAGRAMA_UDP.md).
 
 ---
 
-## 3. 📐 Módulo de Cinemática e Física Preditiva (`PhysicsEngine`)
+## 3.  Módulo de Cinemática e Física Preditiva (`PhysicsEngine`)
 
 Em vez de deduzir o que o oponente está fazendo a partir de mudanças de cores de pixels, o **NovoAuto** utiliza fórmulas cinemáticas elementares da física clássica.
 
@@ -101,11 +101,11 @@ flowchart LR
 4. **Zonificação de Combate (Range Zones):**
    * **Corpo a Corpo ($d < 2.0\text{m}$):** Alcance de golpes leves, médios e ataque pesado.
    * **Média Distância ($2.0\text{m} \le d \le 3.5\text{m}$):** Alcance de avanço com Dash Médio.
-> 📖 **Documentação Aprofundada:** Para a formulação matemática completa, diagramas de zonificação (Zonas 0 a 3), filtro EMA, proteção contra inversão de lado e código fonte Python de alta performance (`PhysicsEngine`), consulte [MODULO_CINEMATICA_FISICA.md](./MODULO_CINEMATICA_FISICA.md).
+>  **Documentação Aprofundada:** Para a formulação matemática completa, diagramas de zonificação (Zonas 0 a 3), filtro EMA, proteção contra inversão de lado e código fonte Python de alta performance (`PhysicsEngine`), consulte [MODULO_CINEMATICA_FISICA.md](./MODULO_CINEMATICA_FISICA.md).
 
 ---
 
-## 4. 🧠 Cérebro Tático Determinístico (`CombatBrain`)
+## 4.  Cérebro Tático Determinístico (`CombatBrain`)
 
 Como os dados da memória são livres de ruído, a Máquina de Estados Finita (FSM) opera de forma **100% determinística**, sem necessidade de filtros de média móvel, janelas de tolerância ou thresholds de probabilidade.
 
@@ -150,7 +150,7 @@ stateDiagram-v2
    * *Condição:* `opponent.mana >= 2.8`.
    * *Ação:* Entra em `BAITING_SP`, mantendo espaçamento seguro ($d > 3.0\text{m}$) e alternando fintas para forçar a IA a gastar barras antes de atingir o nível 3.
 
-> 📖 **Documentação Aprofundada:** Para a máquina de estados completa (FSM transitions), tabela da verdade de todas as combinações de combate, regras anti-suicídio de especiais, disciplina pós-combo e código fonte Python (`CombatBrain`), consulte [CEREBRO_TATICO_COMBAT_BRAIN.md](./CEREBRO_TATICO_COMBAT_BRAIN.md).
+>  **Documentação Aprofundada:** Para a máquina de estados completa (FSM transitions), tabela da verdade de todas as combinações de combate, regras anti-suicídio de especiais, disciplina pós-combo e código fonte Python (`CombatBrain`), consulte [CEREBRO_TATICO_COMBAT_BRAIN.md](./CEREBRO_TATICO_COMBAT_BRAIN.md).
 
 ---
 
@@ -238,31 +238,3 @@ O módulo `VirtualDevice` registra um teclado virtual de hardware no kernel do L
   * Intervalos irregulares entre golpes leves ($\mu = 110\text{ms}, \sigma = 12\text{ms}$).
   * Impossibilidade de detecção por padrões matemáticos constantes.
 
----
-
-## 8. 🗺️ Roteiro de Implementação Passo a Passo (Roadmap)
-
-### Fase 1: Fundação do Receptor e Cinemática
-- [ ] Criar `core/telemetry_schema.py` com dataclasses Python para o pacote UDP.
-- [ ] Criar `capture/memory_receiver.py` com loop assíncrono em `127.0.0.1:5555`.
-- [ ] Criar `physics/kinematics.py` para calcular $\Delta X$, $V_{\text{rel}}$, distância 3D e aceleração.
-
-### Fase 2: Preditor de Colisão e Decisão FSM
-- [ ] Criar `physics/collision_predictor.py` calculando $t_{\text{impacto}}$.
-- [ ] Implementar `brain/combat_fsm.py` portando as regras aperfeiçoadas de combate (Parry, Destreza, Quebra-Guarda, Combos 5x).
-- [ ] Implementar testes unitários em `tests/test_kinematics.py` e `tests/test_combat_fsm.py`.
-
-### Fase 3: Execução de Input e Sequenciador
-- [ ] Migrar e refinar `execution/virtual_device.py` e `execution/combo_sequencer.py`.
-- [ ] Adicionar parada de emergência e liberação imediata de teclas.
-
-### Fase 4: Interface de Terminal e Polimento
-- [ ] Criar `ui/terminal_monitor.py` utilizando `rich.live` para exibir métricas de combate (HP, Mana, Posições X, $V_{\text{rel}}$, Estado da FSM e Latência).
-- [ ] Criar `toggle.sh` para ativação global com notificações no desktop (`notify-send`).
-- [ ] Benchmark de latência fim a fim visando $< 1\text{ms}$ por ciclo.
-
----
-
-## 9. 🏁 Conclusão
-
-Com a eliminação completa da visão computacional, o **NovoAuto** transforma a automação em um **sistema de telemetria física determinística em tempo real**. O bot deixa de "adivinhar" o que está acontecendo na tela para "saber" exatamente os estados de colisão, física e memória do jogo, garantindo tempo de reação instantâneo, parry impecável e consumo praticamente nulo de recursos da máquina.
