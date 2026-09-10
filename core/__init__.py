@@ -1,0 +1,3 @@
+"""
+NovoAuto - Core Engine
+"""

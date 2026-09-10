@@ -1,0 +1,25 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv
+.venv/
+venv/
+env/
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime temporary state
+*.log
+novoauto.log
+.novoauto.pid
+*.tmp
+
+# System and OS files
+.DS_Store
+Thumbs.db
