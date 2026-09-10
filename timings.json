@@ -7,15 +7,15 @@
     "medium_dash_jitter_ms": 0.0,
     "heavy_hold_ms": 420.0,
     "heavy_hold_jitter_ms": 0.0,
-    "parry_pulse_ms": 85.0,
+    "parry_pulse_ms": 130.0,
     "parry_pulse_jitter_ms": 0.0,
     "dexterity_dash_ms": 45.0,
     "dexterity_dash_jitter_ms": 0.0,
-    "dash_in_recovery_ms": 130.0,
+    "dash_in_recovery_ms": 140.0,
     "dash_in_recovery_jitter_ms": 0.0,
-    "combo_hit_interval_ms": 110.0,
+    "combo_hit_interval_ms": 115.0,
     "combo_hit_interval_jitter_ms": 0.0,
     "bait_spacing_interval_ms": 120.0,
     "bait_spacing_jitter_ms": 0.0,
-    "heavy_recovery_punish_delay_ms": 80.0
+    "heavy_recovery_punish_delay_ms": 90.0
 }

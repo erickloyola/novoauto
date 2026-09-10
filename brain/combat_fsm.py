@@ -54,6 +54,7 @@ class CombatBrain:
         self.last_combo_end_time: float = 0.0
         self.post_combo_cooldown_sec: float = POST_COMBO_COOLDOWN_SEC
         self.prev_opp_mana: float = 0.0
+        self.parry_start_time: float = 0.0
 
         # Últimos snapshots recebidos
         self.current_packet: Optional[TelemetryPacket] = None
@@ -143,14 +144,28 @@ class CombatBrain:
         self.last_player_hp = packet.player.hp_pct
 
         # ----------------------------------------------------------------------
+        # Resolução de DEFESA_PARRY: Punição imediata se Stun, ou retorno ao Neutro
+        # ----------------------------------------------------------------------
+        if self.state == "DEFESA_PARRY":
+            if packet.opponent.is_stunned or packet.opp_state_id == 8:
+                self.trigger_punish()
+                return
+            elif (now - self.parry_start_time) > 0.08:
+                self.return_neutral()
+            else:
+                return  # Aguarda tolerância do stun
+
+        # ----------------------------------------------------------------------
         # Regra 6: Disciplina Pós-Combo (Cooldown Anti-Whiff / Wake-Up Protection)
         # ----------------------------------------------------------------------
         if (now - self.last_combo_end_time) < self.post_combo_cooldown_sec and self.state == "NEUTRO":
-            # Reage apenas se o oponente acordar disparando Especial ou Dash
+            # Reage imediatamente se o oponente acordar desferindo golpe hostil
             if packet.opp_state_id == 9 or (self.prev_opp_mana >= 1.0 and (self.prev_opp_mana - packet.opponent.mana) >= 0.8):
                 self._handle_special_trigger()
+            elif packet.opp_state_id == 5:
+                self.trigger_heavy_evade()
             elif physics.action == PhysicalAction.DASH_FORWARD or packet.opp_state_id == 2:
-                self.device.parry_pulse(TIMINGS.parry_pulse_ms)
+                self.trigger_parry()
             self.prev_opp_mana = packet.opponent.mana
             return
 
@@ -205,9 +220,9 @@ class CombatBrain:
         # Regra 1: Oponente Avançando em Dash Forward ou Atacando -> Aparar Preditivo (Parry)
         # ----------------------------------------------------------------------
         is_dash_approaching = (
-            (physics.action == PhysicalAction.DASH_FORWARD and 80.0 <= physics.t_impact_ms <= 140.0) or
-            (packet.opp_state_id == 2 and physics.dx <= 2.8) or
-            (packet.opp_state_id == 4 and physics.dx <= 1.8)
+            (physics.action == PhysicalAction.DASH_FORWARD and 50.0 <= physics.t_impact_ms <= 170.0) or
+            (packet.opp_state_id == 2 and physics.dx <= 3.2) or
+            (packet.opp_state_id == 4 and physics.dx <= 2.2)
         )
         if is_dash_approaching:
             if self.state in ["NEUTRO", "BAITING_SP"]:
@@ -235,13 +250,19 @@ class CombatBrain:
         # ----------------------------------------------------------------------
         # Regra 7: Oponente em Guarda Aberta ou Neutro -> Iniciativa Ofensiva
         # ----------------------------------------------------------------------
-        if not packet.opponent.is_blocking:
+        is_opp_vulnerable = (
+            not packet.opponent.is_blocking and
+            packet.opp_state_id in (0, 3) and
+            physics.action not in (PhysicalAction.DASH_FORWARD, PhysicalAction.AIRBORNE) and
+            (now - self.last_combo_end_time) >= self.post_combo_cooldown_sec
+        )
+        if is_opp_vulnerable:
             if physics.zone in (CombatRangeZone.CLOSE_INFIGHT, CombatRangeZone.DASH_PUNISH, CombatRangeZone.BAITING_MID):
                 if self.state == "NEUTRO":
                     self.trigger_punish()
                     return
             elif physics.zone == CombatRangeZone.FAR_RESET:
-                if self.state == "NEUTRO" and (now - self.last_combo_end_time > 0.15):
+                if self.state == "NEUTRO" and (now - self.last_combo_end_time > 0.35):
                     logger.info("[CombatBrain] Oponente recuado em FAR_RESET! Avançando para reconectar distância de combate...")
                     self.device.dash_medium()
                     self.last_combo_end_time = now
@@ -252,6 +273,7 @@ class CombatBrain:
     # --------------------------------------------------------------------------
     def on_enter_parry(self) -> None:
         logger.info(f"[CombatBrain] Executando APARAR PREDITIVO (Parry {TIMINGS.parry_pulse_ms:.0f}ms)...")
+        self.parry_start_time = time.perf_counter()
         self.device.parry_pulse(TIMINGS.parry_pulse_ms)
 
     def on_enter_special_defense(self) -> None:

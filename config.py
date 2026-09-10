@@ -123,17 +123,17 @@ class TimingsConfig:
     medium_dash_jitter_ms: float = 0.0
     heavy_hold_ms: float = 420.0
     heavy_hold_jitter_ms: float = 0.0
-    parry_pulse_ms: float = 85.0
+    parry_pulse_ms: float = 130.0
     parry_pulse_jitter_ms: float = 0.0
     dexterity_dash_ms: float = 45.0
     dexterity_dash_jitter_ms: float = 0.0
-    dash_in_recovery_ms: float = 130.0
+    dash_in_recovery_ms: float = 140.0
     dash_in_recovery_jitter_ms: float = 0.0
-    combo_hit_interval_ms: float = 110.0
+    combo_hit_interval_ms: float = 115.0
     combo_hit_interval_jitter_ms: float = 0.0
     bait_spacing_interval_ms: float = 120.0
     bait_spacing_jitter_ms: float = 0.0
-    heavy_recovery_punish_delay_ms: float = 80.0
+    heavy_recovery_punish_delay_ms: float = 90.0
 
     @classmethod
     def load_from_file(cls, path: Path) -> "TimingsConfig":
@@ -152,13 +152,13 @@ TIMINGS = TimingsConfig.load_from_file(BASE_DIR / "timings.json")
 # 4. Parâmetros de Física e Combate
 # ==============================================================================
 CONTACT_DISTANCE_METERS = 0.95
-PARRY_WINDOW_MIN_MS = 80.0
-PARRY_WINDOW_MAX_MS = 140.0
+PARRY_WINDOW_MIN_MS = 60.0
+PARRY_WINDOW_MAX_MS = 160.0
 EMA_ALPHA = 0.75
 
 SPECIAL_DEFENSE_HOLD_SEC = 1.00
 EMERGENCY_GUARD_HOLD_SEC = 0.25
-POST_COMBO_COOLDOWN_SEC = 0.20
+POST_COMBO_COOLDOWN_SEC = 0.55
 DAMAGE_THRESHOLD_HP_PCT = 1.8
 SP3_DANGER_THRESHOLD = 2.80
 
